@@ -39,6 +39,7 @@ streamlit-webrtc
 psycopg2-binary
 sqlalchemy
 boto3   # for S3
+supabase
 
 # --- Analytics & Visualization ---
 plotly
