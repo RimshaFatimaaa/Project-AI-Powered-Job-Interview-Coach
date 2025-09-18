@@ -1,0 +1,52 @@
+# --- Jupyter + Utilities ---
+jupyterlab
+notebook
+ipykernel
+python-dotenv
+
+# --- NLP ---
+spacy
+textstat
+# download model separately: python -m spacy download en_core_web_sm
+
+# --- Transformers & Embeddings ---
+transformers
+torch
+sentence-transformers
+
+# --- LangChain Ecosystem ---
+langchain
+langgraph
+chromadb
+
+# --- Speech Recognition ---
+faster-whisper
+# openai-whisper   # optional slower baseline
+
+# --- Text-to-Speech ---
+pyttsx3
+# TTS   # (optional: coqui.ai TTS, better quality)
+
+# --- Backend ---
+fastapi
+uvicorn[standard]
+
+# --- Frontend ---
+streamlit
+streamlit-webrtc
+
+# --- Database & Storage ---
+psycopg2-binary
+sqlalchemy
+boto3   # for S3
+
+# --- Analytics & Visualization ---
+plotly
+seaborn
+pandas
+matplotlib
+
+# --- Dev & Testing Tools ---
+pytest
+black
+isort
