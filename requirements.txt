@@ -10,6 +10,7 @@ plotly==5.17.0
 spacy==3.6.1
 textstat==0.7.3
 nltk==3.8.1
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.6.0/en_core_web_sm-3.6.0-py3-none-any.whl
 
 # Transformers (minimal for OpenAI-only deployment)
 transformers==4.33.0
