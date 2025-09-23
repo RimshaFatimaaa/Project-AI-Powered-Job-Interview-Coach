@@ -240,6 +240,9 @@ def main():
                     st.error("❌ OpenAI API key not found. Please check your environment variables.")
                     st.stop()
                 
+                # Debug: Show API key status (first 10 chars for security)
+                st.info(f"🔑 API Key Status: {'*' * 10}{api_key[-4:] if len(api_key) > 4 else 'Invalid'}")
+                
                 llm_processor = SimpleLLMProcessor(use_openai=True)
                 question = llm_processor.generate_question(
                     QuestionType(question_type),

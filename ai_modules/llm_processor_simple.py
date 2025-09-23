@@ -107,30 +107,15 @@ class SimpleLLMProcessor:
     def _init_local_models(self):
         """Initialize local Hugging Face models"""
         try:
-            # Use a smaller, faster model for local inference
-            model_name = "microsoft/DialoGPT-medium"
-            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-            self.model = AutoModelForCausalLM.from_pretrained(model_name)
-            
-            # Add padding token
-            if self.tokenizer.pad_token is None:
-                self.tokenizer.pad_token = self.tokenizer.eos_token
-            
-            # Create pipeline
-            self.local_llm = pipeline(
-                "text-generation",
-                model=self.model,
-                tokenizer=self.tokenizer,
-                max_length=512,
-                do_sample=True,
-                temperature=0.7,
-                pad_token_id=self.tokenizer.eos_token_id
-            )
-            
-            logger.info("Local models initialized successfully")
+            # Skip local model initialization on Render to avoid memory issues
+            logger.warning("Skipping local model initialization - using template-based processing")
+            self.local_llm = None
+            self.tokenizer = None
+            self.model = None
+            logger.info("Local models skipped - using fallback processing")
         except Exception as e:
             logger.error(f"Failed to initialize local models: {e}")
-            raise
+            self.local_llm = None
 
     def generate_question(
         self, 
