@@ -26,7 +26,6 @@ def show_login_form():
                 result = auth_manager.sign_in(email, password)
                 
                 if result.get("success"):
-                    st.success(result["message"])
                     st.session_state.authenticated = True
                     st.session_state.user_email = email
                     st.session_state.user_name = email.split('@')[0]
@@ -64,7 +63,6 @@ def show_signup_form():
                         result = auth_manager.sign_up(email, password, full_name)
                         
                         if result.get("success"):
-                            st.success(result["message"])
                             st.info("Please check your email to verify your account before logging in.")
                             st.session_state.show_signup = False
                             st.rerun()
@@ -128,7 +126,6 @@ def show_logout_button():
                 st.session_state.authenticated = False
                 st.session_state.user_email = None
                 st.session_state.user_name = None
-                st.success("Logged out successfully!")
                 st.rerun()
             else:
                 st.error("Logout failed. Please try again.")
@@ -150,7 +147,6 @@ def show_header_logout():
                 st.session_state.authenticated = False
                 st.session_state.user_email = None
                 st.session_state.user_name = None
-                st.success("Logged out successfully!")
                 st.rerun()
             else:
                 st.error("Logout failed. Please try again.")
