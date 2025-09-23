@@ -2,7 +2,7 @@ services:
   - type: web
     name: ai-interview-coach
     env: python
-    buildCommand: pip install --upgrade pip && pip install -r requirements_render.txt && python -m spacy download en_core_web_sm
+    buildCommand: pip install --upgrade pip && pip install --only-binary=all -r requirements_minimal.txt && python -m spacy download en_core_web_sm
     startCommand: streamlit run app.py --server.port=$PORT --server.address=0.0.0.0
     envVars:
       - key: OPENAI_API_KEY
