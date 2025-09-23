@@ -5,12 +5,17 @@ Simple Streamlit app to display NLP processing results from the notebook
 
 import streamlit as st
 import pandas as pd
+import os
+from dotenv import load_dotenv
 from ai_modules.nlp_processor import process_interview_response, NLPProcessor
 from ai_modules.llm_processor_simple import SimpleLLMProcessor, QuestionType, DifficultyLevel
 from ai_modules.auth import check_auth_status, init_session_state
 from ai_modules.auth_ui import show_auth_page, show_logout_button, show_header_logout
 import plotly.express as px
 import plotly.graph_objects as go
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Page configuration
 st.set_page_config(
@@ -236,7 +241,7 @@ def main():
     if st.button("🎯 Generate Question", type="primary"):
         with st.spinner("Generating question..."):
             try:
-                llm_processor = SimpleLLMProcessor(use_openai=False)
+                llm_processor = SimpleLLMProcessor(use_openai=True)
                 question = llm_processor.generate_question(
                     QuestionType(question_type),
                     "Software Engineer",
@@ -310,7 +315,7 @@ def main():
                     if 'llm_processor' in st.session_state:
                         llm_processor = st.session_state['llm_processor']
                     else:
-                        llm_processor = SimpleLLMProcessor(use_openai=False)
+                        llm_processor = SimpleLLMProcessor(use_openai=True)
                     
                     evaluation = llm_processor.evaluate_answer(
                         question=system_question,
