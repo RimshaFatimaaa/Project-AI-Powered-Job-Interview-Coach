@@ -78,13 +78,6 @@ st.markdown("""
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-radius: 50%;
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
     }
     
     .logo-text {
