@@ -7,7 +7,7 @@ pandas==2.0.3
 plotly==5.17.0
 textstat==0.7.3
 transformers==4.33.0
-torch==2.0.1
+torch==2.5.0
 langchain==0.0.340
 langchain-community==0.0.5
 requests==2.31.0
