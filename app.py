@@ -282,22 +282,22 @@ def main():
     )
     
     with col2:
-    if sample_choice == "Custom Input":
-        user_response = st.text_area(
-            "Enter candidate response:",
-            value="",
-            height=100,
+        if sample_choice == "Custom Input":
+            user_response = st.text_area(
+                "Enter candidate response:",
+                value="",
+                height=100,
                 placeholder="Type or paste the candidate's response here...",
                 help="Enter the candidate's response to analyze"
-        )
-    else:
-        sample_idx = int(sample_choice.split()[-1]) - 1
-        user_response = st.text_area(
-            "Enter candidate response:",
-            value=sample_responses[sample_idx],
+            )
+        else:
+            sample_idx = int(sample_choice.split()[-1]) - 1
+            user_response = st.text_area(
+                "Enter candidate response:",
+                value=sample_responses[sample_idx],
                 height=100,
                 help="Edit the sample response or use as is"
-        )
+            )
     
     st.markdown('</div>', unsafe_allow_html=True)  # Close input section
     
