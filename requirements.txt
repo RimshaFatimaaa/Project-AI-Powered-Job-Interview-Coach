@@ -9,6 +9,7 @@ plotly==5.17.0
 # NLP dependencies
 spacy==3.6.1
 textstat==0.7.3
+nltk==3.8.1
 
 # Transformers (minimal for OpenAI-only deployment)
 transformers==4.33.0
@@ -21,4 +22,3 @@ langchain-community==0.0.5
 # Additional utilities
 requests==2.31.0
 numpy==1.24.3
-nltk==3.8.1
