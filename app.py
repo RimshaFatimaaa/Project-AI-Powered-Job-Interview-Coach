@@ -5,17 +5,12 @@ Simple Streamlit app to display NLP processing results from the notebook
 
 import streamlit as st
 import pandas as pd
-import os
-from dotenv import load_dotenv
 from ai_modules.nlp_processor import process_interview_response, NLPProcessor
 from ai_modules.llm_processor_simple import SimpleLLMProcessor, QuestionType, DifficultyLevel
 from ai_modules.auth import check_auth_status, init_session_state
 from ai_modules.auth_ui import show_auth_page, show_logout_button, show_header_logout
 import plotly.express as px
 import plotly.graph_objects as go
-
-# Load environment variables from .env file
-load_dotenv()
 
 # Page configuration
 st.set_page_config(
@@ -78,6 +73,13 @@ st.markdown("""
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-radius: 50%;
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
     }
     
     .logo-text {
@@ -234,7 +236,7 @@ def main():
     if st.button("🎯 Generate Question", type="primary"):
         with st.spinner("Generating question..."):
             try:
-                llm_processor = SimpleLLMProcessor(use_openai=True)
+                llm_processor = SimpleLLMProcessor(use_openai=False)
                 question = llm_processor.generate_question(
                     QuestionType(question_type),
                     "Software Engineer",
@@ -308,7 +310,7 @@ def main():
                     if 'llm_processor' in st.session_state:
                         llm_processor = st.session_state['llm_processor']
                     else:
-                        llm_processor = SimpleLLMProcessor(use_openai=True)
+                        llm_processor = SimpleLLMProcessor(use_openai=False)
                     
                     evaluation = llm_processor.evaluate_answer(
                         question=system_question,

@@ -26,17 +26,22 @@ def download_nltk_data():
 # Initialize models
 def initialize_models():
     """Initialize spaCy and sentiment analysis models"""
+    nlp = None
+    sentiment_pipeline = None
+    
     try:
         nlp = spacy.load("en_core_web_sm")
+        print("✅ spaCy model loaded successfully")
     except OSError:
-        print("Please install spaCy English model: python -m spacy download en_core_web_sm")
-        return None, None
+        print("⚠️ spaCy model not found, continuing without advanced NLP features")
+        nlp = None
     
     try:
         sentiment_pipeline = pipeline("sentiment-analysis")
+        print("✅ Sentiment analysis model loaded successfully")
     except Exception as e:
-        print(f"Error loading sentiment analysis model: {e}")
-        return nlp, None
+        print(f"⚠️ Sentiment analysis model not available: {e}")
+        sentiment_pipeline = None
     
     return nlp, sentiment_pipeline
 
@@ -177,7 +182,9 @@ class NLPProcessor:
     def process_response(self, user_response, system_question="Tell me about teamwork"):
         """Main processing function that combines all steps"""
         if not self.nlp:
-            return {"error": "spaCy model not loaded. Please install: python -m spacy download en_core_web_sm"}
+            print("⚠️ spaCy model not available, using basic NLP processing")
+            # Return basic processing without spaCy
+            return self._basic_process_response(user_response, system_question)
         
         # Step 1: Input data
         original_response = user_response
@@ -211,6 +218,64 @@ class NLPProcessor:
         }
         
         return user_output
+
+    def _basic_process_response(self, user_response, system_question="Tell me about teamwork"):
+        """Basic processing without spaCy - fallback method"""
+        # Basic text cleaning
+        cleaned_text = user_response.lower()
+        cleaned_text = re.sub(r'[^A-Za-z0-9\s]', '', cleaned_text)
+        words = cleaned_text.split()
+        
+        # Basic keyword extraction (simple word filtering)
+        keywords = [word for word in words if len(word) > 3 and word not in ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'man', 'men', 'put', 'say', 'she', 'too', 'use']]
+        
+        # Basic sentiment (very simple)
+        positive_words = ['good', 'great', 'excellent', 'amazing', 'wonderful', 'fantastic', 'love', 'like', 'enjoy', 'happy', 'pleased', 'satisfied']
+        negative_words = ['bad', 'terrible', 'awful', 'hate', 'dislike', 'angry', 'sad', 'disappointed', 'frustrated', 'upset']
+        
+        positive_count = sum(1 for word in words if word in positive_words)
+        negative_count = sum(1 for word in words if word in negative_words)
+        
+        if positive_count > negative_count:
+            sentiment_label = 'POSITIVE'
+            sentiment_score = 0.7
+        elif negative_count > positive_count:
+            sentiment_label = 'NEGATIVE'
+            sentiment_score = 0.3
+        else:
+            sentiment_label = 'NEUTRAL'
+            sentiment_score = 0.5
+        
+        # Basic evaluation
+        word_count = len(words)
+        has_keywords = len(keywords) > 0
+        clarity = 1 if word_count >= 5 and has_keywords else 0
+        
+        rubric = {
+            "relevance": 1 if any(word in keywords for word in ['team', 'work', 'group', 'together', 'collaborate']) else 0,
+            "clarity": clarity,
+            "tone": 1 if sentiment_label in ["POSITIVE", "NEUTRAL"] else 0
+        }
+        
+        overall_score = sum(rubric.values())
+        
+        return {
+            "original_response": user_response,
+            "cleaned_response": keywords,
+            "tokenized_words": words,
+            "lemmatized_words": words,
+            "keywords": keywords,
+            "named_entities": [],
+            "sentiment_label": sentiment_label,
+            "sentiment_score": sentiment_score,
+            "rubric": rubric,
+            "overall_score": overall_score,
+            "preprocessing_steps": {
+                "lowercase": cleaned_text,
+                "no_fillers": cleaned_text,
+                "no_punctuation": cleaned_text
+            }
+        }
 
 # Convenience function for easy usage
 def process_interview_response(user_response, system_question="Tell me about teamwork"):
