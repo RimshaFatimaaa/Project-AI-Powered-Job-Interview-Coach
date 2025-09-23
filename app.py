@@ -276,10 +276,10 @@ def main():
     
     with col1:
         sample_choice = st.selectbox(
-        "Choose a sample response:",
+            "Choose a sample response:",
             ["Custom Input"] + [f"Sample {i+1}" for i in range(len(sample_responses))],
             help="Select a pre-defined sample response or use custom input"
-    )
+        )
     
     with col2:
         if sample_choice == "Custom Input":
