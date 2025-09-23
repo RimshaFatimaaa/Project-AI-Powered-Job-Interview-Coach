@@ -13,6 +13,7 @@ textstat
 transformers
 torch
 sentence-transformers
+openai
 
 # --- LangChain Ecosystem ---
 langchain
