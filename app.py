@@ -5,12 +5,17 @@ Simple Streamlit app to display NLP processing results from the notebook
 
 import streamlit as st
 import pandas as pd
+import os
+from dotenv import load_dotenv
 from ai_modules.nlp_processor import process_interview_response, NLPProcessor
 from ai_modules.llm_processor_simple import SimpleLLMProcessor, QuestionType, DifficultyLevel
 from ai_modules.auth import check_auth_status, init_session_state
 from ai_modules.auth_ui import show_auth_page, show_logout_button, show_header_logout
 import plotly.express as px
 import plotly.graph_objects as go
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Page configuration
 st.set_page_config(
@@ -73,13 +78,6 @@ st.markdown("""
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-radius: 50%;
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
     }
     
     .logo-text {
@@ -236,7 +234,13 @@ def main():
     if st.button("🎯 Generate Question", type="primary"):
         with st.spinner("Generating question..."):
             try:
-                llm_processor = SimpleLLMProcessor(use_openai=False)
+                # Check if OpenAI API key is available
+                api_key = os.getenv("OPENAI_API_KEY")
+                if not api_key:
+                    st.error("❌ OpenAI API key not found. Please check your environment variables.")
+                    st.stop()
+                
+                llm_processor = SimpleLLMProcessor(use_openai=True)
                 question = llm_processor.generate_question(
                     QuestionType(question_type),
                     "Software Engineer",
@@ -275,22 +279,22 @@ def main():
     )
     
     with col2:
-        if sample_choice == "Custom Input":
-            user_response = st.text_area(
-                "Enter candidate response:",
-                value="",
-                height=100,
+    if sample_choice == "Custom Input":
+        user_response = st.text_area(
+            "Enter candidate response:",
+            value="",
+            height=100,
                 placeholder="Type or paste the candidate's response here...",
                 help="Enter the candidate's response to analyze"
-            )
-        else:
-            sample_idx = int(sample_choice.split()[-1]) - 1
-            user_response = st.text_area(
-                "Enter candidate response:",
-                value=sample_responses[sample_idx],
+        )
+    else:
+        sample_idx = int(sample_choice.split()[-1]) - 1
+        user_response = st.text_area(
+            "Enter candidate response:",
+            value=sample_responses[sample_idx],
                 height=100,
                 help="Edit the sample response or use as is"
-            )
+        )
     
     st.markdown('</div>', unsafe_allow_html=True)  # Close input section
     
@@ -307,10 +311,16 @@ def main():
                     features = nlp_processor.extract_features(user_response, cleaned_data)
                     
                     # Then run LLM evaluation with cleaned text
+                    # Check if OpenAI API key is available
+                    api_key = os.getenv("OPENAI_API_KEY")
+                    if not api_key:
+                        st.error("❌ OpenAI API key not found. Please check your environment variables.")
+                        st.stop()
+                    
                     if 'llm_processor' in st.session_state:
                         llm_processor = st.session_state['llm_processor']
                     else:
-                        llm_processor = SimpleLLMProcessor(use_openai=False)
+                        llm_processor = SimpleLLMProcessor(use_openai=True)
                     
                     evaluation = llm_processor.evaluate_answer(
                         question=system_question,
