@@ -13,3 +13,8 @@ langchain==0.0.340
 langchain-community==0.0.5
 requests==2.31.0
 numpy==1.24.3
+# Pre-compiled wheels to avoid compilation
+blis==0.7.9
+cymem==2.0.7
+preshed==3.0.8
+thinc==8.1.12
