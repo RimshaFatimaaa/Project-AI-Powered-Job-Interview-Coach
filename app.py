@@ -204,7 +204,14 @@ def main():
         st.session_state.user_email = None
         st.session_state.user_name = None
         st.session_state.logout_requested = False
+        
+        # Also logout from Supabase
+        from ai_modules.auth import AuthManager
+        auth_manager = AuthManager()
+        auth_manager.sign_out()
+        
         st.success("✅ Successfully logged out!")
+        # Force authentication check to show auth page
         st.rerun()
     
     # Check authentication
