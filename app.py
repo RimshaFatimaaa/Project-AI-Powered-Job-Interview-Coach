@@ -177,6 +177,16 @@ def main():
     # Initialize session state
     init_session_state()
     
+    # Check for logout request
+    if st.query_params.get("logout") == "true":
+        # Clear session state
+        st.session_state.authenticated = False
+        st.session_state.user_email = None
+        st.session_state.user_name = None
+        # Clear query params and redirect
+        st.query_params.clear()
+        st.rerun()
+    
     # Check authentication
     is_authenticated = check_auth_status()
     if not is_authenticated:
@@ -198,6 +208,16 @@ def main():
         </div>
     </div>
     """, unsafe_allow_html=True)
+    
+    # Add Streamlit logout button as backup
+    col1, col2, col3 = st.columns([4, 1, 1])
+    with col3:
+        if st.button("🚪 Logout", key="streamlit_logout", type="secondary"):
+            # Clear session state
+            st.session_state.authenticated = False
+            st.session_state.user_email = None
+            st.session_state.user_name = None
+            st.rerun()
     
     # Main content
     st.markdown('<h1 class="main-header">✨ Analysis Dashboard</h1>', unsafe_allow_html=True)
