@@ -107,6 +107,26 @@ st.markdown("""
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
+    /* Streamlit logout button styling */
+    .stButton > button {
+        background: #ffffff !important;
+        color: #6c757d !important;
+        border: 1px solid #dee2e6 !important;
+        padding: 0.4rem 0.8rem !important;
+        border-radius: 8px !important;
+        font-weight: 500 !important;
+        font-size: 0.9rem !important;
+        transition: all 0.2s ease !important;
+        width: 100% !important;
+    }
+    
+    .stButton > button:hover {
+        background: #f8f9fa !important;
+        border-color: #adb5bd !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+    
     /* Input section styling */
     .input-section {
         background: #ffffff;
@@ -177,14 +197,13 @@ def main():
     # Initialize session state
     init_session_state()
     
-    # Check for logout request
-    if st.query_params.get("logout") == "true":
+    # Check for logout request using session state
+    if st.session_state.get("logout_requested", False):
         # Clear session state
         st.session_state.authenticated = False
         st.session_state.user_email = None
         st.session_state.user_name = None
-        # Clear query params and redirect
-        st.query_params.clear()
+        st.session_state.logout_requested = False
         st.success("✅ Successfully logged out!")
         st.rerun()
     
@@ -194,9 +213,11 @@ def main():
         show_auth_page()
         return
     
-    # Custom header with logo
-    st.markdown("""
-    <div class="header-container">
+    # Custom header with logo and logout button
+    col1, col2 = st.columns([4, 1])
+    
+    with col1:
+        st.markdown("""
         <div class="logo-section">
             <div class="logo-icon">🎯</div>
             <div>
@@ -204,11 +225,12 @@ def main():
                 <p style="color: #6c757d; margin: 0; font-size: 0.85rem; font-weight: 400;">Smart Analysis • AI-Powered</p>
             </div>
         </div>
-        <div>
-            <button class="logout-btn" onclick="window.location.href='?logout=true'">Logout</button>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        if st.button("Logout", key="logout_btn", help="Click to log out"):
+            st.session_state.logout_requested = True
+            st.rerun()
     
     # Main content
     st.markdown('<h1 class="main-header">✨ Analysis Dashboard</h1>', unsafe_allow_html=True)
