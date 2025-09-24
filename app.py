@@ -185,6 +185,7 @@ def main():
         st.session_state.user_name = None
         # Clear query params and redirect
         st.query_params.clear()
+        st.success("✅ Successfully logged out!")
         st.rerun()
     
     # Check authentication
