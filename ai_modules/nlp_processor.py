@@ -17,12 +17,15 @@ from pprint import pprint
 # Download required NLTK data
 def download_nltk_data():
     try:
+        # Try to download NLTK data with more robust error handling
         nltk.download("stopwords", quiet=True)
         nltk.download('punkt', quiet=True)
         nltk.download('punkt_tab', quiet=True)
         nltk.download('wordnet', quiet=True)
+        print("✅ NLTK data downloaded successfully")
     except Exception as e:
-        print(f"Warning: Could not download NLTK data: {e}")
+        print(f"⚠️ Warning: Could not download NLTK data: {e}")
+        print("⚠️ App will use fallback methods for text processing")
         pass
 
 # Initialize models
@@ -49,8 +52,20 @@ def initialize_models():
 
 class NLPProcessor:
     def __init__(self):
+        # Try to download NLTK data at runtime
         download_nltk_data()
+        
+        # Initialize models
         self.nlp, self.sentiment_pipeline = initialize_models()
+        
+        # Try to download NLTK data again if needed
+        try:
+            # Test if punkt is available
+            from nltk.tokenize import word_tokenize
+            word_tokenize("test")
+        except (LookupError, OSError, Exception) as e:
+            print(f"⚠️ NLTK punkt not available: {e}")
+            print("⚠️ Will use fallback tokenization methods")
         
         # Filler words to remove
         self.filler_words = [
@@ -70,8 +85,11 @@ class NLPProcessor:
         # English stopwords
         try:
             self.en_stopwords = set(stopwords.words("english"))
-        except LookupError:
+            print("✅ NLTK stopwords loaded successfully")
+        except (LookupError, OSError, Exception) as e:
             # Fallback to basic stopwords if NLTK data is not available
+            print(f"⚠️ NLTK stopwords failed: {e}")
+            print("⚠️ Using fallback stopwords")
             self.en_stopwords = {
                 'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours',
                 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers',
@@ -117,8 +135,10 @@ class NLPProcessor:
         # 4. Tokenize
         try:
             user_response_tokenize = word_tokenize(user_response_no_punc)
-        except LookupError:
+        except (LookupError, OSError, Exception) as e:
             # Fallback to simple split if NLTK punkt is not available
+            print(f"⚠️ NLTK tokenization failed: {e}")
+            print("⚠️ Using fallback tokenization method")
             user_response_tokenize = user_response_no_punc.split()
         
         # 5. Lemmatize using POS
