@@ -18,9 +18,11 @@ from pprint import pprint
 def download_nltk_data():
     try:
         nltk.download("stopwords", quiet=True)
+        nltk.download('punkt', quiet=True)
         nltk.download('punkt_tab', quiet=True)
         nltk.download('wordnet', quiet=True)
-    except:
+    except Exception as e:
+        print(f"Warning: Could not download NLTK data: {e}")
         pass
 
 # Initialize models
@@ -66,7 +68,21 @@ class NLPProcessor:
         ]
         
         # English stopwords
-        self.en_stopwords = set(stopwords.words("english"))
+        try:
+            self.en_stopwords = set(stopwords.words("english"))
+        except LookupError:
+            # Fallback to basic stopwords if NLTK data is not available
+            self.en_stopwords = {
+                'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours',
+                'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers',
+                'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves',
+                'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are',
+                'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does',
+                'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until',
+                'while', 'of', 'at', 'by', 'for', 'with', 'through', 'during', 'before', 'after',
+                'above', 'below', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again',
+                'further', 'then', 'once'
+            }
         
         # Setup entity ruler for programming languages
         if self.nlp:
@@ -99,7 +115,11 @@ class NLPProcessor:
         user_response_no_punc = re.sub(r'[^A-Za-z0-9\s]', '', user_response_no_fillers)
         
         # 4. Tokenize
-        user_response_tokenize = word_tokenize(user_response_no_punc)
+        try:
+            user_response_tokenize = word_tokenize(user_response_no_punc)
+        except LookupError:
+            # Fallback to simple split if NLTK punkt is not available
+            user_response_tokenize = user_response_no_punc.split()
         
         # 5. Lemmatize using POS
         if self.nlp:
