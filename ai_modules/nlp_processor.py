@@ -17,33 +17,55 @@ from pprint import pprint
 # Download required NLTK data
 def download_nltk_data():
     try:
+        # Try to download NLTK data with more robust error handling
         nltk.download("stopwords", quiet=True)
+        nltk.download('punkt', quiet=True)
         nltk.download('punkt_tab', quiet=True)
         nltk.download('wordnet', quiet=True)
-    except:
+        print("✅ NLTK data downloaded successfully")
+    except Exception as e:
+        print(f"⚠️ Warning: Could not download NLTK data: {e}")
+        print("⚠️ App will use fallback methods for text processing")
         pass
 
 # Initialize models
 def initialize_models():
     """Initialize spaCy and sentiment analysis models"""
+    nlp = None
+    sentiment_pipeline = None
+    
     try:
         nlp = spacy.load("en_core_web_sm")
+        print("✅ spaCy model loaded successfully")
     except OSError:
-        print("Please install spaCy English model: python -m spacy download en_core_web_sm")
-        return None, None
+        print("⚠️ spaCy model not found, continuing without advanced NLP features")
+        nlp = None
     
     try:
         sentiment_pipeline = pipeline("sentiment-analysis")
+        print("✅ Sentiment analysis model loaded successfully")
     except Exception as e:
-        print(f"Error loading sentiment analysis model: {e}")
-        return nlp, None
+        print(f"⚠️ Sentiment analysis model not available: {e}")
+        sentiment_pipeline = None
     
     return nlp, sentiment_pipeline
 
 class NLPProcessor:
     def __init__(self):
+        # Try to download NLTK data at runtime
         download_nltk_data()
+        
+        # Initialize models
         self.nlp, self.sentiment_pipeline = initialize_models()
+        
+        # Try to download NLTK data again if needed
+        try:
+            # Test if punkt is available
+            from nltk.tokenize import word_tokenize
+            word_tokenize("test")
+        except (LookupError, OSError, Exception) as e:
+            print(f"⚠️ NLTK punkt not available: {e}")
+            print("⚠️ Will use fallback tokenization methods")
         
         # Filler words to remove
         self.filler_words = [
@@ -61,7 +83,24 @@ class NLPProcessor:
         ]
         
         # English stopwords
-        self.en_stopwords = set(stopwords.words("english"))
+        try:
+            self.en_stopwords = set(stopwords.words("english"))
+            print("✅ NLTK stopwords loaded successfully")
+        except (LookupError, OSError, Exception) as e:
+            # Fallback to basic stopwords if NLTK data is not available
+            print(f"⚠️ NLTK stopwords failed: {e}")
+            print("⚠️ Using fallback stopwords")
+            self.en_stopwords = {
+                'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours',
+                'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers',
+                'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves',
+                'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are',
+                'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does',
+                'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until',
+                'while', 'of', 'at', 'by', 'for', 'with', 'through', 'during', 'before', 'after',
+                'above', 'below', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again',
+                'further', 'then', 'once'
+            }
         
         # Setup entity ruler for programming languages
         if self.nlp:
@@ -94,7 +133,13 @@ class NLPProcessor:
         user_response_no_punc = re.sub(r'[^A-Za-z0-9\s]', '', user_response_no_fillers)
         
         # 4. Tokenize
-        user_response_tokenize = word_tokenize(user_response_no_punc)
+        try:
+            user_response_tokenize = word_tokenize(user_response_no_punc)
+        except (LookupError, OSError, Exception) as e:
+            # Fallback to simple split if NLTK punkt is not available
+            print(f"⚠️ NLTK tokenization failed: {e}")
+            print("⚠️ Using fallback tokenization method")
+            user_response_tokenize = user_response_no_punc.split()
         
         # 5. Lemmatize using POS
         if self.nlp:
@@ -177,7 +222,9 @@ class NLPProcessor:
     def process_response(self, user_response, system_question="Tell me about teamwork"):
         """Main processing function that combines all steps"""
         if not self.nlp:
-            return {"error": "spaCy model not loaded. Please install: python -m spacy download en_core_web_sm"}
+            print("⚠️ spaCy model not available, using basic NLP processing")
+            # Return basic processing without spaCy
+            return self._basic_process_response(user_response, system_question)
         
         # Step 1: Input data
         original_response = user_response
@@ -211,6 +258,64 @@ class NLPProcessor:
         }
         
         return user_output
+
+    def _basic_process_response(self, user_response, system_question="Tell me about teamwork"):
+        """Basic processing without spaCy - fallback method"""
+        # Basic text cleaning
+        cleaned_text = user_response.lower()
+        cleaned_text = re.sub(r'[^A-Za-z0-9\s]', '', cleaned_text)
+        words = cleaned_text.split()
+        
+        # Basic keyword extraction (simple word filtering)
+        keywords = [word for word in words if len(word) > 3 and word not in ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'man', 'men', 'put', 'say', 'she', 'too', 'use']]
+        
+        # Basic sentiment (very simple)
+        positive_words = ['good', 'great', 'excellent', 'amazing', 'wonderful', 'fantastic', 'love', 'like', 'enjoy', 'happy', 'pleased', 'satisfied']
+        negative_words = ['bad', 'terrible', 'awful', 'hate', 'dislike', 'angry', 'sad', 'disappointed', 'frustrated', 'upset']
+        
+        positive_count = sum(1 for word in words if word in positive_words)
+        negative_count = sum(1 for word in words if word in negative_words)
+        
+        if positive_count > negative_count:
+            sentiment_label = 'POSITIVE'
+            sentiment_score = 0.7
+        elif negative_count > positive_count:
+            sentiment_label = 'NEGATIVE'
+            sentiment_score = 0.3
+        else:
+            sentiment_label = 'NEUTRAL'
+            sentiment_score = 0.5
+        
+        # Basic evaluation
+        word_count = len(words)
+        has_keywords = len(keywords) > 0
+        clarity = 1 if word_count >= 5 and has_keywords else 0
+        
+        rubric = {
+            "relevance": 1 if any(word in keywords for word in ['team', 'work', 'group', 'together', 'collaborate']) else 0,
+            "clarity": clarity,
+            "tone": 1 if sentiment_label in ["POSITIVE", "NEUTRAL"] else 0
+        }
+        
+        overall_score = sum(rubric.values())
+        
+        return {
+            "original_response": user_response,
+            "cleaned_response": keywords,
+            "tokenized_words": words,
+            "lemmatized_words": words,
+            "keywords": keywords,
+            "named_entities": [],
+            "sentiment_label": sentiment_label,
+            "sentiment_score": sentiment_score,
+            "rubric": rubric,
+            "overall_score": overall_score,
+            "preprocessing_steps": {
+                "lowercase": cleaned_text,
+                "no_fillers": cleaned_text,
+                "no_punctuation": cleaned_text
+            }
+        }
 
 # Convenience function for easy usage
 def process_interview_response(user_response, system_question="Tell me about teamwork"):

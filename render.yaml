@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: ai-interview-coach
+    env: python
+    pythonVersion: "3.11.9"
+    buildCommand: pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+    startCommand: streamlit run app.py --server.port=$PORT --server.address=0.0.0.0
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        value: https://sbwjxrvqcbwojkmlmgdu.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNid2p4cnZxY2J3b2prbWxtZ2R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMDU1NDUsImV4cCI6MjA3Mzc4MTU0NX0.LKGGysulqMV2TGfJuCxLtnQ_KwW6voamQNhvKq0WhKo
